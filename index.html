@@ -1,207 +1,474 @@
-<!DOCTYPE html>
-<html lang="fr">
-
+<html lang=\"fr\">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta charset=\"utf-8\" />
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
 <title>NexaMarket STATS</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<link rel=\"icon\" href=\"https://i.ibb.co/fGGkb8Dj/IMG-2347.jpg\" />
+<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">
+<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>
+<link href=\"https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap\" rel=\"stylesheet\">
+<script src=\"https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js\"></script>
 <style>
+  :root{
+    --bg:#050505;
+    --panel:#0a0f0a;
+    --neon:#39ff7a;
+    --neon-soft:rgba(57,255,122,.35);
+    --neon-faint:rgba(57,255,122,.08);
+    --text:#e7ffe7;
+    --muted:rgba(231,255,231,.55);
+    --danger:#ff5b6b;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Space Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .mono{font-family:'JetBrains Mono',monospace}
+  a{color:var(--neon)}
+  ::selection{background:rgba(57,255,122,.35);color:#04140a}
 
-body{
-    margin:0;
-    background:#000;
-    font-family:Arial, Helvetica, sans-serif;
-    color:white;
-}
+  /* Background grid + glow */
+  body::before{
+    content:\"\";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(57,255,122,.06) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(57,255,122,.06) 1px,transparent 1px);
+    background-size:40px 40px;
+  }
+  body::after{
+    content:\"\";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 0% 0%,rgba(57,255,122,.18),transparent 40%),
+      radial-gradient(circle at 100% 100%,rgba(57,255,122,.12),transparent 45%);
+  }
 
-/* HEADER */
-header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:20px 30px;
-    border-bottom:2px solid #00ff66;
-}
+  .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:32px 20px 48px}
 
-.left{
-    display:flex;
-    align-items:center;
-    gap:15px;
-}
+  /* Header */
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:36px}
+  .brand{display:flex;align-items:center;gap:16px}
+  .logo{width:60px;height:60px;border-radius:10px;overflow:hidden;background:#000;
+    border:1px solid var(--neon-soft);
+    box-shadow:0 0 0 1px rgba(57,255,122,.08),0 0 24px rgba(57,255,122,.18),inset 0 0 24px rgba(57,255,122,.05)}
+  .logo img{width:100%;height:100%;object-fit:cover;display:block}
+  .title{font-size:clamp(22px,3.4vw,38px);font-weight:700;line-height:1;letter-spacing:-.01em;margin:0}
+  .title .accent{color:var(--neon);text-shadow:0 0 8px rgba(57,255,122,.55),0 0 22px rgba(57,255,122,.3);animation:flicker 5.5s infinite}
+  .subtitle{color:rgba(57,255,122,.6);font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-top:6px}
+  .live{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;border:1px solid var(--neon-soft);background:rgba(0,0,0,.6);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;color:rgba(57,255,122,.9)}
+  .live .dot{width:8px;height:8px;border-radius:50%;background:var(--neon);box-shadow:0 0 12px var(--neon);animation:pulse 1.4s ease-in-out infinite}
 
-.logo{
-    width:60px;
-    height:60px;
-    border-radius:12px;
-    overflow:hidden;
-    box-shadow:0 0 15px #00ff66;
-}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.8)}}
+  @keyframes flicker{
+    0%,19%,21%,23%,25%,54%,56%,100%{opacity:1;text-shadow:0 0 6px rgba(57,255,122,.6),0 0 22px rgba(57,255,122,.4)}
+    20%,24%,55%{opacity:.85;text-shadow:none}
+  }
 
-.logo img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-}
+  /* Cards */
+  .panel{
+    background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
+    border:1px solid var(--neon-soft);border-radius:14px;
+    box-shadow:0 0 0 1px rgba(57,255,122,.05),0 0 30px rgba(57,255,122,.05),inset 0 0 30px rgba(57,255,122,.03);
+  }
 
-.title{
-    font-size:26px;
-    font-weight:bold;
-    color:#00ff66;
-    text-shadow:0 0 10px #00ff66;
-}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+  .stat{padding:18px 18px 20px}
+  .stat .label{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:rgba(57,255,122,.75);text-transform:uppercase}
+  .stat .value{margin-top:12px;font-size:clamp(20px,3vw,30px);font-weight:700;line-height:1;color:#fff}
+  .stat.highlight .value{color:var(--neon);text-shadow:0 0 8px rgba(57,255,122,.45)}
+  .stat .sub{margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(57,255,122,.6)}
+  .stat svg{width:14px;height:14px}
 
-/* TOTAL BOX */
-.total{
-    border:1px solid #00ff66;
-    padding:10px 15px;
-    border-radius:10px;
-    text-align:center;
-    box-shadow:0 0 15px rgba(0,255,102,0.2);
-}
+  /* Chart card */
+  .chart-card{padding:20px 20px 8px;margin-bottom:24px}
+  .chart-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px}
+  .chart-head h2{margin:0;font-size:18px;color:var(--neon);text-shadow:0 0 8px rgba(57,255,122,.4)}
+  .chart-head .axis-info{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(57,255,122,.55);letter-spacing:.15em;text-transform:uppercase;margin-top:4px}
+  .chart-head .points{font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(57,255,122,.7)}
+  .chart-box{position:relative;height:340px}
 
-.total span{
-    display:block;
-    color:#00ff66;
-    font-size:22px;
-    font-weight:bold;
-}
+  /* Two-column layout: form + history */
+  .grid2{display:grid;grid-template-columns:2fr 3fr;gap:18px}
+  .card-inner{padding:22px}
+  .card-inner h3{margin:0 0 16px;font-size:16px;display:flex;align-items:center;gap:8px}
+  .card-inner h3 svg{width:16px;height:16px;color:var(--neon)}
 
-/* CONTAINER */
-.container{
-    width:95%;
-    max-width:1100px;
-    margin:40px auto;
-}
+  label{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(57,255,122,.75);margin-bottom:8px}
+  input{
+    width:100%;background:var(--panel);border:1px solid rgba(57,255,122,.25);
+    color:var(--text);border-radius:8px;padding:11px 12px;font-family:'JetBrains Mono',monospace;font-size:15px;
+    transition:border-color .2s,box-shadow .2s;
+  }
+  input:focus{outline:none;border-color:rgba(57,255,122,.8);box-shadow:0 0 0 3px rgba(57,255,122,.15)}
+  .field{margin-bottom:14px}
+  .field .with-suffix{position:relative}
+  .field .with-suffix .suffix{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:rgba(57,255,122,.6);font-family:'JetBrains Mono',monospace}
 
-/* CARD GRAPH */
-.card{
-    background:#0a0a0a;
-    border:2px solid #00ff66;
-    border-radius:20px;
-    padding:25px;
-    height:600px;
-    box-shadow:0 0 25px rgba(0,255,102,0.15);
-}
+  button.primary{
+    width:100%;padding:12px 16px;border:0;border-radius:8px;cursor:pointer;
+    font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:.02em;font-size:15px;
+    background:linear-gradient(180deg,#39ff7a 0%,#1fd95f 100%);color:#04140a;
+    box-shadow:0 0 0 1px rgba(57,255,122,.6),0 0 24px rgba(57,255,122,.35);
+    transition:transform .15s,box-shadow .25s,filter .2s;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  button.primary:hover{transform:translateY(-1px);filter:brightness(1.08);box-shadow:0 0 0 1px rgba(57,255,122,.85),0 0 36px rgba(57,255,122,.55)}
+  button.primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
 
-canvas{
-    width:100% !important;
-    height:100% !important;
-}
+  .hint{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(57,255,122,.5);margin-top:10px;line-height:1.5}
 
+  /* History */
+  .history-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .history-head .count{font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(57,255,122,.6)}
+  .table{border:1px solid rgba(57,255,122,.18);border-radius:10px;overflow:hidden}
+  .row{display:grid;grid-template-columns:1fr 2fr 1fr;align-items:center;padding:12px 16px;border-top:1px solid rgba(57,255,122,.1);transition:background .15s}
+  .row:first-child{border-top:0;background:rgba(57,255,122,.05);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:rgba(57,255,122,.65);text-transform:uppercase}
+  .row:not(:first-child):hover{background:rgba(57,255,122,.04)}
+  .row .day{font-family:'JetBrains Mono',monospace;color:rgba(231,255,231,.9)}
+  .row .amount{color:var(--neon);font-weight:600}
+  .row .amount.neg{color:var(--danger)}
+  .row .actions{display:flex;justify-content:flex-end;gap:6px}
+  .icon-btn{background:transparent;border:0;cursor:pointer;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:rgba(231,255,231,.65);transition:background .15s,color .15s}
+  .icon-btn:hover{background:rgba(255,91,107,.15);color:#ff7d8a}
+  .icon-btn.edit:hover{background:rgba(57,255,122,.12);color:var(--neon)}
+  .icon-btn svg{width:16px;height:16px}
+
+  .empty{padding:38px 16px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(57,255,122,.5)}
+
+  footer{margin-top:40px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(57,255,122,.4);letter-spacing:.15em}
+
+  /* Toast */
+  .toast{position:fixed;top:20px;right:20px;z-index:50;display:flex;flex-direction:column;gap:10px}
+  .toast .t{
+    background:#0a0f0a;border:1px solid var(--neon-soft);border-radius:10px;padding:12px 16px;
+    color:var(--text);font-size:14px;min-width:220px;
+    box-shadow:0 8px 32px rgba(0,0,0,.5);
+    animation:slidein .25s ease;
+  }
+  .toast .t.err{border-color:rgba(255,91,107,.5);color:#ffd5da}
+  @keyframes slidein{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+  /* Responsive */
+  @media (max-width:860px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .grid2{grid-template-columns:1fr}
+    .chart-box{height:280px}
+    header.top .live{display:none}
+  }
 </style>
-
 </head>
-
 <body>
+<div class=\"wrap\">
 
-<header>
+  <header class=\"top\">
+    <div class=\"brand\">
+      <div class=\"logo\">
+        <img src=\"https://i.ibb.co/fGGkb8Dj/IMG-2347.jpg\" alt=\"NexaMarket\" />
+      </div>
+      <div>
+        <h1 class=\"title\">NexaMarket <span class=\"accent\">STATS</span></h1>
+        <div class=\"subtitle\">Suivi quotidien des gains · €</div>
+      </div>
+    </div>
+    <div class=\"live\"><span class=\"dot\"></span>LIVE</div>
+  </header>
 
-<div class="left">
+  <!-- Stat cards -->
+  <section class=\"stats\">
+    <div class=\"panel stat highlight\">
+      <div class=\"label\">
+        <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 12V7H5a2 2 0 0 1 0-4h14v4\"/><path d=\"M3 5v14a2 2 0 0 0 2 2h16v-5\"/><path d=\"M18 12a2 2 0 0 0 0 4h4v-4Z\"/></svg>
+        Total gagné
+      </div>
+      <div class=\"value\" id=\"stat-total\">0.00 €</div>
+    </div>
+    <div class=\"panel stat\">
+      <div class=\"label\">
+        <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18\"/></svg>
+        Jours suivis
+      </div>
+      <div class=\"value\" id=\"stat-days\">0</div>
+    </div>
+    <div class=\"panel stat\">
+      <div class=\"label\">
+        <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\"/><polyline points=\"16 7 22 7 22 13\"/></svg>
+        Moyenne / jour
+      </div>
+      <div class=\"value\" id=\"stat-avg\">0.00 €</div>
+    </div>
+    <div class=\"panel stat\">
+      <div class=\"label\">
+        <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 9H4.5a2.5 2.5 0 0 1 0-5H6\"/><path d=\"M18 9h1.5a2.5 2.5 0 0 0 0-5H18\"/><path d=\"M4 22h16\"/><path d=\"M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22\"/><path d=\"M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22\"/><path d=\"M18 2H6v7a6 6 0 0 0 12 0V2Z\"/></svg>
+        Meilleur jour
+      </div>
+      <div class=\"value\" id=\"stat-best\">—</div>
+      <div class=\"sub\" id=\"stat-best-sub\"></div>
+    </div>
+  </section>
 
-<div class="logo">
-<img src="https://i.ibb.co/fGGkb8Dj/IMG-2347.jpg">
+  <!-- Chart -->
+  <section class=\"panel chart-card\">
+    <div class=\"chart-head\">
+      <div>
+        <h2>Évolution des gains</h2>
+        <div class=\"axis-info\">AXE Y · EUROS  ·  AXE X · JOURS</div>
+      </div>
+      <div class=\"points\" id=\"points-count\">0 point</div>
+    </div>
+    <div class=\"chart-box\"><canvas id=\"chart\"></canvas></div>
+  </section>
+
+  <!-- Form + History -->
+  <section class=\"grid2\">
+    <div class=\"panel card-inner\">
+      <h3>
+        <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg>
+        Ajouter un jour
+      </h3>
+      <form id=\"add-form\">
+        <div class=\"field\">
+          <label for=\"day\">Jour</label>
+          <input id=\"day\" type=\"number\" min=\"1\" step=\"1\" required />
+        </div>
+        <div class=\"field\">
+          <label for=\"amount\">Montant (€)</label>
+          <div class=\"with-suffix\">
+            <input id=\"amount\" type=\"number\" step=\"0.01\" inputmode=\"decimal\" placeholder=\"0.00\" required />
+            <span class=\"suffix\">€</span>
+          </div>
+        </div>
+        <button class=\"primary\" type=\"submit\">
+          <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" width=\"16\" height=\"16\"><path d=\"M12 5v14M5 12h14\"/></svg>
+          Ajouter ce jour
+        </button>
+        <p class=\"hint\">Astuce : utilise une valeur négative pour enregistrer une perte. Tes données sont sauvegardées dans ton navigateur (localStorage).</p>
+      </form>
+    </div>
+
+    <div class=\"panel card-inner\">
+      <div class=\"history-head\">
+        <h3 style=\"margin:0\">Historique</h3>
+        <span class=\"count\" id=\"count-label\">0 entrée</span>
+      </div>
+      <div id=\"history-wrap\"></div>
+    </div>
+  </section>
+
+  <footer>NEXAMARKET · INTERNAL STATS DASHBOARD · <span id=\"year\"></span></footer>
 </div>
 
-<div class="title">
-NexaMarket STATS
-</div>
-
-</div>
-
-<div class="total">
-TOTAL GAGNÉ
-<span>25 €</span>
-</div>
-
-</header>
-
-
-<div class="container">
-
-<div class="card">
-<canvas id="chart"></canvas>
-</div>
-
-</div>
-
+<div class=\"toast\" id=\"toast\"></div>
 
 <script>
+/* ---------- Storage ---------- */
+const STORAGE_KEY = 'nexamarket_stats_v1';
 
-const ctx = document.getElementById("chart");
-
-new Chart(ctx, {
-
-type: "line",
-
-data: {
-
-labels: ["Jour 1","Jour 2","Jour 3","Jour 4","Jour 5","Jour 6","Jour 7"],
-
-datasets: [{
-
-label: "Gains (€)",
-
-data: [25, null, null, null, null, null, null],
-
-borderColor: "#00ff66",
-backgroundColor: "rgba(0,255,102,0.15)",
-
-pointRadius: 8,
-pointHoverRadius: 10,
-
-pointBackgroundColor: "#00ff66",
-pointBorderColor: "#00ff66",
-
-borderWidth: 4,
-tension: 0.4,
-
-spanGaps: false,
-
-fill: true
-
-}]
-
-},
-
-options: {
-
-responsive: true,
-maintainAspectRatio: false,
-
-plugins: {
-legend: {
-labels: {
-color: "#00ff66"
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return seedDefault();
+    const data = JSON.parse(raw);
+    if(!Array.isArray(data) || data.length === 0) return seedDefault();
+    return data;
+  }catch(e){ return seedDefault(); }
 }
-}
-},
-
-scales: {
-
-x: {
-ticks: { color: "#00ff66" },
-grid: { color: "rgba(0,255,102,0.1)" }
-},
-
-y: {
-beginAtZero: true,
-max: 100,
-
-ticks: { color: "#00ff66" },
-grid: { color: "rgba(0,255,102,0.1)" }
+function save(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+function seedDefault(){
+  const d = [{ day:1, amount:25 }];
+  save(d); return d;
 }
 
+let earnings = load();
+
+/* ---------- DOM refs ---------- */
+const $total = document.getElementById('stat-total');
+const $days  = document.getElementById('stat-days');
+const $avg   = document.getElementById('stat-avg');
+const $best  = document.getElementById('stat-best');
+const $bestSub = document.getElementById('stat-best-sub');
+const $points = document.getElementById('points-count');
+const $count = document.getElementById('count-label');
+const $history = document.getElementById('history-wrap');
+const $dayInput = document.getElementById('day');
+const $amountInput = document.getElementById('amount');
+const $form = document.getElementById('add-form');
+const $toast = document.getElementById('toast');
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ---------- Toast ---------- */
+function toast(msg, type){
+  const el = document.createElement('div');
+  el.className = 't' + (type === 'err' ? ' err' : '');
+  el.textContent = msg;
+  $toast.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; }, 2200);
+  setTimeout(()=> el.remove(), 2600);
 }
 
+/* ---------- Render ---------- */
+function fmt(n){ return Number(n).toFixed(2).replace('.', ',') + ' €'; }
+
+function render(){
+  earnings.sort((a,b)=>a.day-b.day);
+  const total = earnings.reduce((s,e)=>s+Number(e.amount),0);
+  const days = earnings.length;
+  const avg = days ? total/days : 0;
+  const best = days ? earnings.reduce((b,e)=>e.amount>b.amount?e:b, earnings[0]) : null;
+
+  $total.textContent = fmt(total);
+  $days.textContent = days;
+  $avg.textContent = fmt(avg);
+  $best.textContent = best ? fmt(best.amount) : '—';
+  $bestSub.textContent = best ? `Jour ${best.day}` : '';
+  $points.textContent = days + ' point' + (days>1?'s':'');
+  $count.textContent = days + ' entrée' + (days>1?'s':'');
+
+  // Next day suggestion
+  const nextDay = days ? Math.max(...earnings.map(e=>e.day)) + 1 : 1;
+  if(document.activeElement !== $dayInput) $dayInput.value = nextDay;
+
+  // History
+  if(!days){
+    $history.innerHTML = '<div class=\"empty\">Aucun jour enregistré. Ajoute ton premier gain !</div>';
+  } else {
+    const rows = earnings.slice().sort((a,b)=>b.day-a.day).map(e=>`
+      <div class=\"row\">
+        <div class=\"day\">J${e.day}</div>
+        <div class=\"amount ${e.amount<0?'neg':''}\">${fmt(e.amount)}</div>
+        <div class=\"actions\">
+          <button class=\"icon-btn edit\" title=\"Modifier\" onclick=\"editDay(${e.day})\">
+            <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 20h9\"/><path d=\"M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z\"/></svg>
+          </button>
+          <button class=\"icon-btn\" title=\"Supprimer\" onclick=\"removeDay(${e.day})\">
+            <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"3 6 5 6 21 6\"/><path d=\"M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6\"/><path d=\"M10 11v6M14 11v6\"/><path d=\"M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2\"/></svg>
+          </button>
+        </div>
+      </div>`).join('');
+    $history.innerHTML = `
+      <div class=\"table\">
+        <div class=\"row\"><div>Jour</div><div>Gain</div><div style=\"text-align:right\">Action</div></div>
+        ${rows}
+      </div>`;
+  }
+
+  renderChart();
 }
 
+/* ---------- Actions ---------- */
+function removeDay(day){
+  if(!confirm(`Supprimer le jour ${day} ?`)) return;
+  earnings = earnings.filter(e => e.day !== day);
+  save(earnings); render();
+  toast(`Jour ${day} supprimé`);
+}
+function editDay(day){
+  const cur = earnings.find(e=>e.day===day);
+  if(!cur) return;
+  const val = prompt(`Nouveau montant pour le jour ${day} (€) :`, cur.amount);
+  if(val === null) return;
+  const n = parseFloat(val.replace(',', '.'));
+  if(!isFinite(n)){ toast('Montant invalide', 'err'); return; }
+  cur.amount = n;
+  save(earnings); render();
+  toast(`Jour ${day} mis à jour`);
+}
+window.removeDay = removeDay;
+window.editDay = editDay;
+
+$form.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const day = parseInt($dayInput.value, 10);
+  const amount = parseFloat(String($amountInput.value).replace(',', '.'));
+  if(!Number.isFinite(day) || day < 1){ toast('Jour invalide', 'err'); return; }
+  if(!Number.isFinite(amount)){ toast('Montant invalide', 'err'); return; }
+  if(earnings.some(e=>e.day===day)){
+    toast(`Le jour ${day} existe déjà`, 'err');
+    return;
+  }
+  earnings.push({ day, amount });
+  save(earnings);
+  $amountInput.value = '';
+  render();
+  toast(`Jour ${day} ajouté : ${amount>=0?'+':''}${fmt(amount)}`);
 });
 
-</script>
+/* ---------- Chart ---------- */
+let chart;
+function renderChart(){
+  const ctx = document.getElementById('chart').getContext('2d');
+  const sorted = earnings.slice().sort((a,b)=>a.day-b.day);
+  // anchor Jour 0 = 0€ so the line starts at the bottom
+  const labels = [0, ...sorted.map(e=>e.day)];
+  const data = [0, ...sorted.map(e=>Number(e.amount))];
 
+  const gradient = ctx.createLinearGradient(0, 0, 0, 340);
+  gradient.addColorStop(0,'rgba(57,255,122,0.55)');
+  gradient.addColorStop(0.6,'rgba(57,255,122,0.12)');
+  gradient.addColorStop(1,'rgba(57,255,122,0)');
+
+  if(chart){ chart.destroy(); }
+  chart = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'Gains (€)',
+        data,
+        borderColor:'#39ff7a',
+        borderWidth:2.5,
+        backgroundColor:gradient,
+        fill:true,
+        tension:0.32,
+        pointRadius:(c)=> c.dataIndex===0 ? 0 : 4,
+        pointHoverRadius:6,
+        pointBackgroundColor:'#04140a',
+        pointBorderColor:'#39ff7a',
+        pointBorderWidth:2,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      animation:{ duration: 900, easing:'easeOutCubic' },
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ display:false },
+        tooltip:{
+          backgroundColor:'#0a0f0a',
+          borderColor:'rgba(57,255,122,.4)', borderWidth:1,
+          titleColor:'rgba(57,255,122,.7)', bodyColor:'#e7ffe7',
+          titleFont:{ family:'JetBrains Mono', size:11 },
+          bodyFont:{ family:'JetBrains Mono', size:13, weight:'700' },
+          padding:10, displayColors:false,
+          callbacks:{
+            title: (items)=> items[0].label === '0' ? 'Départ' : 'Jour ' + items[0].label,
+            label: (item)=> Number(item.parsed.y).toFixed(2) + ' €',
+          }
+        }
+      },
+      scales:{
+        x:{
+          type:'linear',
+          min:0,
+          ticks:{
+            stepSize:1,
+            color:'rgba(231,255,231,.6)',
+            font:{ family:'JetBrains Mono', size:11 },
+            callback:(v)=> v===0 ? '' : 'J'+v
+          },
+          grid:{ color:'rgba(57,255,122,.06)', drawBorder:false },
+        },
+        y:{
+          beginAtZero:true,
+          ticks:{
+            color:'rgba(231,255,231,.6)',
+            font:{ family:'JetBrains Mono', size:11 },
+            callback:(v)=> v+' €'
+          },
+          grid:{ color:'rgba(57,255,122,.06)', drawBorder:false },
+        }
+      }
+    }
+  });
+}
+
+render();
+</script>
 </body>
 </html>
