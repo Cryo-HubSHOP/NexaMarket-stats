@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>NexaMarket STATS</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
@@ -26,7 +29,7 @@ header{
     height:65px;
     border-radius:12px;
     overflow:hidden;
-    box-shadow:0 0 15px #00ff66;
+    box-shadow:0 0 20px #00ff66;
 }
 
 .logo img{
@@ -40,87 +43,22 @@ header{
     font-size:30px;
     font-weight:bold;
     color:#00ff66;
-    text-shadow:0 0 10px #00ff66;
+    text-shadow:0 0 15px #00ff66;
 }
 
 .container{
-    padding:20px;
-}
-
-.graph{
-    position:relative;
     width:90%;
-    max-width:900px;
-    height:450px;
-    margin-top:30px;
-
-    border-left:3px solid #00ff66;
-    border-bottom:3px solid #00ff66;
+    max-width:1000px;
+    margin:auto;
 }
 
-/* Ligne montante */
-
-.line{
-    position:absolute;
-
-    left:0;
-    bottom:0;
-
-    width:140px;
-    height:140px;
-
-    border-top:4px solid #00ff66;
-
-    transform:
-    translateY(-95px)
-    rotate(-35deg);
-
+.card{
+    background:#0b0b0b;
+    border:2px solid #00ff66;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 0 20px rgba(0,255,102,0.25);
 }
-
-
-.point{
-
-position:absolute;
-
-left:130px;
-bottom:95px;
-
-width:14px;
-height:14px;
-
-background:#00ff66;
-
-border-radius:50%;
-
-box-shadow:0 0 15px #00ff66;
-
-}
-
-
-.euro{
-
-position:absolute;
-left:-45px;
-
-color:#00ff66;
-
-font-size:14px;
-
-}
-
-
-.day{
-
-position:absolute;
-
-bottom:-30px;
-
-color:#00ff66;
-
-font-size:14px;
-
-}
-
 
 </style>
 
@@ -128,73 +66,113 @@ font-size:14px;
 
 <body>
 
-
 <header>
 
 <div class="logo">
-
 <img src="https://i.ibb.co/fGGkb8Dj/IMG-2347.jpg">
-
 </div>
 
-
 <div class="title">
-
 NexaMarket STATS
-
 </div>
 
 </header>
 
-
-
 <div class="container">
 
+<div class="card">
 
-<div class="graph">
+<canvas id="graph"></canvas>
 
-
-<div class="line"></div>
-
-<div class="point"></div>
-
-
-<div class="euro" style="bottom:95px;">
-25€
 </div>
-
-
-<div class="day" style="left:115px;">
-Jour 1
-</div>
-
-
-<div class="day" style="left:260px;">
-Jour 2
-</div>
-
-
-<div class="day" style="left:400px;">
-Jour 3
-</div>
-
-
-<div class="day" style="left:540px;">
-Jour 4
-</div>
-
-
-<div class="day" style="left:680px;">
-Jour 5
-</div>
-
 
 </div>
 
 
-</div>
+<script>
 
+new Chart(document.getElementById("graph"),{
+
+type:"line",
+
+data:{
+
+labels:[
+"Jour 1",
+"Jour 2",
+"Jour 3",
+"Jour 4",
+"Jour 5"
+],
+
+datasets:[{
+
+label:"Bénéfices (€)",
+
+data:[
+25,
+null,
+null,
+null,
+null
+],
+
+borderColor:"#00ff66",
+
+backgroundColor:"rgba(0,255,102,0.2)",
+
+fill:true,
+
+tension:0.4,
+
+pointRadius:6,
+
+pointBackgroundColor:"#00ff66"
+
+}]
+
+},
+
+options:{
+
+plugins:{
+legend:{
+labels:{
+color:"white"
+}
+}
+},
+
+scales:{
+
+x:{
+ticks:{
+color:"#00ff66"
+},
+grid:{
+color:"#1f1f1f"
+}
+},
+
+y:{
+beginAtZero:true,
+
+ticks:{
+color:"#00ff66"
+},
+
+grid:{
+color:"#1f1f1f"
+}
+}
+
+}
+
+}
+
+});
+
+</script>
 
 </body>
-
 </html>
